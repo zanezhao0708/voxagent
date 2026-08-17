@@ -41,8 +41,8 @@ dev = [
 voxagent = "voxagent.cli:main"
 
 [project.urls]
-Homepage = "https://github.com/TODO_OWNER/voxagent"
-Issues = "https://github.com/TODO_OWNER/voxagent/issues"
+Homepage = "https://github.com/zanezhao0708/voxagent"
+Issues = "https://github.com/zanezhao0708/voxagent/issues"
 
 [tool.ruff]
 line-length = 100
