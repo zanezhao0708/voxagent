@@ -20,7 +20,17 @@ class WhisperEngine(STTEngine):
                 "faster-whisper is not installed. Run: pip install 'voxagent[local]'"
             ) from e
 
-        device = None if config.whisper_device == "auto" else config.whisper_device
+        # ctranslate2 requires a concrete device string; "auto" resolves to
+        # cuda when actually available, else cpu.
+        if config.whisper_device == "auto":
+            try:
+                import ctranslate2
+
+                device = "cuda" if ctranslate2.get_cuda_device_count() > 0 else "cpu"
+            except Exception:
+                device = "cpu"
+        else:
+            device = config.whisper_device
         compute = (
             "default" if config.whisper_compute_type == "auto" else config.whisper_compute_type
         )
