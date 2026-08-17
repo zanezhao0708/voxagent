@@ -1,0 +1,49 @@
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[project]
+name = "voxagent"
+version = "0.1.0"
+description = "Talk to your coding agent. It talks back. Local-first voice I/O (MCP tools + Agent Skill) for Claude Code, Cursor, OpenClaw and any MCP client."
+readme = "README.md"
+requires-python = ">=3.10"
+license = { text = "MIT" }
+keywords = ["voice", "mcp", "agent", "speech-recognition", "text-to-speech", "claude-code", "whisper", "tts"]
+classifiers = [
+  "Development Status :: 3 - Alpha",
+  "Intended Audience :: Developers",
+  "License :: OSI Approved :: MIT License",
+  "Programming Language :: Python :: 3",
+  "Programming Language :: Python :: 3.10",
+  "Programming Language :: Python :: 3.11",
+  "Programming Language :: Python :: 3.12",
+  "Topic :: Multimedia :: Sound/Audio :: Speech",
+  "Topic :: Scientific/Engineering :: Artificial Intelligence",
+]
+dependencies = [
+  "mcp>=1.2.0",
+]
+
+[project.optional-dependencies]
+local = [
+  "faster-whisper>=1.0.0",
+  "sounddevice>=0.4.6",
+  "numpy>=1.24",
+  "edge-tts>=6.1.0",
+]
+dev = [
+  "pytest>=8.0",
+  "ruff>=0.5.0",
+]
+
+[project.scripts]
+voxagent = "voxagent.cli:main"
+
+[project.urls]
+Homepage = "https://github.com/TODO_OWNER/voxagent"
+Issues = "https://github.com/TODO_OWNER/voxagent/issues"
+
+[tool.ruff]
+line-length = 100
+target-version = "py310"

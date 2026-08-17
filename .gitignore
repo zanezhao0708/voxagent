@@ -1,0 +1,26 @@
+# Python
+__pycache__/
+*.py[cod]
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+
+# Environments & secrets
+.env
+*.local
+
+# Audio artifacts
+*.wav
+*.mp3
+!tests/fixtures/*.wav
+
+# Models & caches
+models/
+.cache/
+
+# OS / IDE
+.DS_Store
+.idea/
+.vscode/
