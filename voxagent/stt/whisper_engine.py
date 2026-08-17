@@ -51,13 +51,24 @@ class WhisperEngine(STTEngine):
         ``scripts/download_model.sh`` caches models under
         ``~/.voxagent/models/<size>``. Preferring that cache avoids the
         huggingface_hub download path, which can stall indefinitely on
-        restricted networks.
+        restricted networks. If the exact requested size is not cached, fall
+        back to the largest cached one rather than hitting the network.
         """
         alias = model.strip().lower()
+        cache_root = Path.home() / ".voxagent" / "models"
         if alias in {"tiny", "base", "small"}:
-            local = Path.home() / ".voxagent" / "models" / alias
+            local = cache_root / alias
             if (local / "model.bin").exists():
                 return str(local)
+            for size in ("small", "base", "tiny"):  # prefer largest cached
+                fallback = cache_root / size
+                if (fallback / "model.bin").exists():
+                    print(
+                        f"ℹ️ '{alias}' not cached; using local '{size}' "
+                        "(run scripts/download_model.sh to fetch others)",
+                        file=sys.stderr,
+                    )
+                    return str(fallback)
         return model
 
     def transcribe(self, wav_path: str, language: str | None = None) -> str:
