@@ -13,7 +13,6 @@ Requires: pip install 'voxagent[ptt]'
 from __future__ import annotations
 
 import os
-import shutil
 import subprocess
 import sys
 import tempfile
@@ -366,9 +365,11 @@ class PushToTalkDaemon:
 
                 play_wav(path)
             except Exception:
-                player = shutil.which("ffplay") or shutil.which("afplay") or shutil.which("mpv")
-                if player:
-                    subprocess.run([player, "-nodisp", "-autoexit", path], check=False)
+                # e.g. edge-tts mp3 that sounddevice/wave can't parse
+                from .audio import play_file
+
+                if not play_file(path):
+                    self._print("[ptt] no audio player found (install ffmpeg/mpv)")
         except Exception as e:  # pragma: no cover
             self._print(f"[ptt] tts failed: {e}")
 

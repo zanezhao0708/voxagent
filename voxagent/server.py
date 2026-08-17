@@ -90,14 +90,11 @@ def speak(text: str) -> str:
             seconds = play_wav(audio_path)
         except Exception:
             # edge-tts produces mp3; fall back to system players
-            import shutil
-            import subprocess
+            from .audio import play_file
 
-            player = shutil.which("ffplay") or shutil.which("afplay") or shutil.which("mpv")
-            if player:
-                subprocess.run([player, "-nodisp", "-autoexit", audio_path], check=False)
-                return "-1"
-            raise
+            if not play_file(audio_path):
+                raise
+            return "-1"
         return f"{seconds:.1f}"
     finally:
         import os
