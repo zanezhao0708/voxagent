@@ -2,6 +2,7 @@
 
 from __future__ import annotations
 
+import sys
 from pathlib import Path
 
 from ..config import VoxConfig
@@ -20,6 +21,8 @@ class WhisperEngine(STTEngine):
                 "faster-whisper is not installed. Run: pip install 'voxagent[local]'"
             ) from e
 
+        model_ref = self._resolve_model_ref(config.whisper_model)
+
         # ctranslate2 requires a concrete device string; "auto" resolves to
         # cuda when actually available, else cpu.
         if config.whisper_device == "auto":
@@ -37,8 +40,25 @@ class WhisperEngine(STTEngine):
             compute = "float16" if device == "cuda" else "int8"
         else:
             compute = config.whisper_compute_type
-        self._model = WhisperModel(config.whisper_model, device=device, compute_type=compute)
         self._default_language = None if config.language == "auto" else config.language
+        print(f"⏳ Loading Whisper model ({model_ref}) ...", file=sys.stderr)
+        self._model = WhisperModel(model_ref, device=device, compute_type=compute)
+
+    @staticmethod
+    def _resolve_model_ref(model: str) -> str:
+        """Map a size alias (tiny/base/small) to a local dir when available.
+
+        ``scripts/download_model.sh`` caches models under
+        ``~/.voxagent/models/<size>``. Preferring that cache avoids the
+        huggingface_hub download path, which can stall indefinitely on
+        restricted networks.
+        """
+        alias = model.strip().lower()
+        if alias in {"tiny", "base", "small"}:
+            local = Path.home() / ".voxagent" / "models" / alias
+            if (local / "model.bin").exists():
+                return str(local)
+        return model
 
     def transcribe(self, wav_path: str, language: str | None = None) -> str:
         segments, _info = self._model.transcribe(
