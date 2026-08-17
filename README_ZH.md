@@ -101,6 +101,10 @@ export WHISPER_MODEL="$HOME/.voxagent/models/tiny"
 如果 SDK 在你的网络下可用，也可以设置 `HF_ENDPOINT=https://hf-mirror.com`
 和 `HF_HUB_DISABLE_XET=1` 后再运行。
 
+**按住热键会向聚焦的应用输入字符**（如终端里 `ctrl+j` 就是换行键，说话时
+终端会一直往下滚）：macOS 上守护进程会在组合键按住期间吞掉该字符键。
+若吞噬器不可用，请改用无字符热键，如 `--hotkey f6` 或 `--hotkey ctrl+cmd+j`。
+
 **macOS 热键无响应**：在 系统设置 → 隐私与安全性 中给终端开启
 "辅助功能 / 输入监控" 权限，然后重启守护进程。
 

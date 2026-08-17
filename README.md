@@ -104,6 +104,12 @@ The script pulls from hf-mirror.com with plain `curl`, bypassing the
 huggingface_hub SDK entirely. Alternatively, set `HF_ENDPOINT=https://hf-mirror.com`
 and `HF_HUB_DISABLE_XET=1` before running if the SDK works for you.
 
+**Holding the hotkey types characters into the focused app** (e.g. `ctrl+j`
+sends newlines in a terminal, scrolling it while you speak): on macOS the
+daemon swallows the hotkey's character key while the combo is held. If the
+suppressor is unavailable, prefer a character-free hotkey such as
+`--hotkey f6` or `--hotkey ctrl+cmd+j`.
+
 **macOS hotkeys don't respond**: grant your terminal *Accessibility / Input
 Monitoring* permission in System Settings → Privacy & Security, then restart
 the daemon.

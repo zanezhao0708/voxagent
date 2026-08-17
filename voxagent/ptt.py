@@ -55,12 +55,15 @@ def parse_hotkey(spec: str) -> list[str]:
         "ctrl_l": keyboard.Key.ctrl_l,
         "ctrl_r": keyboard.Key.ctrl_r,
         "alt": keyboard.Key.alt,
+        "alt_l": keyboard.Key.alt_l,
+        "alt_r": keyboard.Key.alt_r,
         "altgr": keyboard.Key.alt_gr,
         "shift": keyboard.Key.shift,
         "shift_l": keyboard.Key.shift_l,
         "shift_r": keyboard.Key.shift_r,
         "cmd": keyboard.Key.cmd,
         "cmd_l": keyboard.Key.cmd_l,
+        "cmd_r": keyboard.Key.cmd_r,
         "super": keyboard.Key.cmd,
         "win": keyboard.Key.cmd,
         "space": keyboard.Key.space,
@@ -74,6 +77,11 @@ def parse_hotkey(spec: str) -> list[str]:
             continue
         if len(name) == 1:
             tokens.append(name)
+        elif name.startswith("f") and name[1:].isdigit():
+            fkey = getattr(keyboard.Key, name, None)
+            if fkey is None:
+                raise ValueError(f"Unknown function key: {part!r}")
+            tokens.append(fkey)
         elif name in mapping:
             tokens.append(mapping[name])
         else:
@@ -117,6 +125,105 @@ def _matches(token, key) -> bool:
     if getattr(key, "char", None) == " " and token.__class__.__name__ == "Key":
         return token.name == "space" if hasattr(token, "name") else False
     return key == token
+
+
+# ------------------------------------------------- macOS key suppression
+
+# ANSI virtual keycodes (layout-independent for letters/digits on Macs)
+_MAC_KEYCODES = {
+    "a": 0, "s": 1, "d": 2, "f": 3, "h": 4, "g": 5, "z": 6, "x": 7,
+    "c": 8, "v": 9, "b": 11, "q": 12, "w": 13, "e": 14, "r": 15,
+    "y": 16, "t": 17, "1": 18, "2": 19, "3": 20, "4": 21, "6": 22,
+    "5": 23, "9": 25, "7": 26, "8": 28, "0": 29, "o": 31, "u": 32,
+    "i": 34, "p": 35, "l": 37, "j": 38, "k": 40, "n": 45, "m": 46,
+    "space": 49,
+}
+
+_MODIFIER_FLAG_NAMES = {
+    "ctrl": "kCGEventFlagMaskControl",
+    "ctrl_l": "kCGEventFlagMaskControl",
+    "ctrl_r": "kCGEventFlagMaskControl",
+    "alt": "kCGEventFlagMaskAlternate",
+    "alt_l": "kCGEventFlagMaskAlternate",
+    "alt_r": "kCGEventFlagMaskAlternate",
+    "alt_gr": "kCGEventFlagMaskAlternate",
+    "shift": "kCGEventFlagMaskShift",
+    "shift_l": "kCGEventFlagMaskShift",
+    "shift_r": "kCGEventFlagMaskShift",
+    "cmd": "kCGEventFlagMaskCommand",
+    "cmd_l": "kCGEventFlagMaskCommand",
+    "cmd_r": "kCGEventFlagMaskCommand",
+    "super": "kCGEventFlagMaskCommand",
+    "win": "kCGEventFlagMaskCommand",
+}
+
+
+def _install_macos_key_suppressor(tokens, print_fn) -> None:
+    """Swallow the hotkey's character key while the modifiers are held.
+
+    Without this, holding e.g. ctrl+j keeps injecting newlines into the
+    focused terminal (^J *is* the newline key), scrolling it away while you
+    speak. Best effort: any failure falls back to pass-through behaviour.
+    """
+    if sys.platform != "darwin":
+        return
+    chars = [t for t in tokens if isinstance(t, str)]
+    mods = [t for t in tokens if not isinstance(t, str) and t.name in _MODIFIER_FLAG_NAMES]
+    # Nothing printable to suppress, or a bare-key hotkey (suppressing a key
+    # with no modifier held would block normal typing — never do that).
+    if not chars or not mods:
+        return
+    try:
+        import Quartz
+    except Exception:
+        print_fn("[ptt] pyobjc unavailable; hotkey keys will pass through to apps")
+        return
+
+    trigger_codes = {_MAC_KEYCODES[c] for c in chars if c in _MAC_KEYCODES}
+    if not trigger_codes:
+        return
+    required_flags = 0
+    for m in mods:
+        required_flags |= int(getattr(Quartz, _MODIFIER_FLAG_NAMES[m.name], 0))
+
+    def on_event(_proxy, _event_type, event, _refcon):
+        try:
+            code = Quartz.CGEventGetIntegerValueField(
+                event, Quartz.kCGKeyboardEventKeycode
+            )
+            if code in trigger_codes:
+                flags = Quartz.CGEventGetFlags(event)
+                if flags & required_flags == required_flags:
+                    return None  # swallow keyDown/keyUp
+        except Exception:
+            pass
+        return event
+
+    try:
+        tap = Quartz.CGEventTapCreate(
+            Quartz.kCGSessionEventTap,
+            Quartz.kCGHeadInsertEventTap,
+            Quartz.kCGEventTapOptionDefault,
+            Quartz.CGEventMaskBit(Quartz.kCGEventKeyDown)
+            | Quartz.CGEventMaskBit(Quartz.kCGEventKeyUp),
+            on_event,
+            None,
+        )
+        if tap is None:
+            print_fn("[ptt] key suppressor unavailable; hotkey keys pass through to apps")
+            return
+        source = Quartz.CFMachPortCreateRunLoopSource(None, tap, 0)
+
+        def _pump() -> None:
+            loop = Quartz.CFRunLoopGetCurrent()
+            Quartz.CFRunLoopAddSource(loop, source, Quartz.kCFRunLoopDefaultMode)
+            Quartz.CGEventTapEnable(tap, True)
+            Quartz.CFRunLoopRun()
+
+        threading.Thread(target=_pump, daemon=True, name="voxagent-key-suppressor").start()
+        print_fn("🔇 Hotkey keys are swallowed while the combo is held")
+    except Exception as e:  # pragma: no cover — platform dependent
+        print_fn(f"[ptt] key suppressor failed to install ({e}); keys pass through")
 
 
 # -------------------------------------------------------------------- daemon
@@ -175,6 +282,7 @@ class PushToTalkDaemon:
             raise SystemExit(1)
 
         tracker = _ComboTracker(parse_hotkey(self._hotkey_spec))
+        _install_macos_key_suppressor(tracker.tokens, self._print)
 
         def on_press(key):
             try:
