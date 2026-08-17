@@ -2,7 +2,11 @@
 
 from __future__ import annotations
 
+import sys
+import threading
+import time
 import wave
+from collections.abc import Callable
 from pathlib import Path
 
 from ..config import VoxConfig
@@ -21,6 +25,17 @@ class Recorder:
 
     def record_to_wav(self, out_path: str) -> str:
         """Record from the default microphone; stop on silence or max duration."""
+        return self._record(out_path, stop_check=None)
+
+    def record_until(self, active: threading.Event, out_path: str) -> str:
+        """Record while `active` is set (push-to-talk mode).
+
+        Returns after the event clears, or the max duration is reached —
+        whichever comes first.
+        """
+        return self._record(out_path, stop_check=lambda: not active.is_set())
+
+    def _record(self, out_path: str, stop_check: Callable[[], bool] | None = None) -> str:
         import numpy as np
         import sounddevice as sd
 
@@ -36,7 +51,7 @@ class Recorder:
         def callback(indata, _frames, _time, status):
             nonlocal silent_run, has_speech
             if status:
-                print(f"[recorder] {status}")
+                print(f"[recorder] {status}", file=sys.stderr)
             rms = float(np.sqrt(np.mean(np.square(indata.astype(np.float32)))))
             chunks.append(indata.copy())
             if rms >= cfg.silence_threshold:
@@ -44,6 +59,9 @@ class Recorder:
                 silent_run = 0
             elif has_speech:
                 silent_run += 1
+
+        hint = "hold the hotkey to talk" if stop_check else "speak, then stay silent to stop"
+        print(f"🎤 Recording... ({hint})", file=sys.stderr)
 
         with sd.InputStream(
             samplerate=cfg.sample_rate,
@@ -54,12 +72,12 @@ class Recorder:
         ):
             blocks = 0
             try:
-                import sys
-
-                print("🎤 Listening... (speak, then stay silent to stop)", file=sys.stderr)
-                while blocks < max_blocks and (not has_speech or silent_run < silence_blocks):
-                    import time
-
+                while blocks < max_blocks:
+                    if stop_check is not None:
+                        if stop_check():
+                            break
+                    elif has_speech and silent_run >= silence_blocks:
+                        break
                     time.sleep(0.05)
                     blocks += 1
             except KeyboardInterrupt:

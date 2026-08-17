@@ -32,6 +32,9 @@ local = [
   "numpy>=1.24",
   "edge-tts>=6.1.0",
 ]
+ptt = [
+  "pynput>=1.7.6",
+]
 dev = [
   "pytest>=8.0",
   "ruff>=0.5.0",
@@ -47,3 +50,8 @@ Issues = "https://github.com/zanezhao0708/voxagent/issues"
 [tool.ruff]
 line-length = 100
 target-version = "py310"
+
+[tool.ruff.lint]
+# BLE001: daemon/fallback paths deliberately catch broad exceptions
+# S110: demo loops intentionally swallow playback errors
+ignore = ["BLE001", "S110"]

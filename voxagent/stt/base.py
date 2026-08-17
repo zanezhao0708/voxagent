@@ -4,7 +4,7 @@ dependencies (faster-whisper) are only imported when actually used."""
 from __future__ import annotations
 
 from abc import ABC, abstractmethod
-from typing import Callable, Dict, Type
+from collections.abc import Callable
 
 from ..config import VoxConfig
 
@@ -20,10 +20,10 @@ class STTEngine(ABC):
         raise NotImplementedError
 
 
-_REGISTRY: Dict[str, Callable[[VoxConfig], STTEngine]] = {}
+_REGISTRY: dict[str, Callable[[VoxConfig], STTEngine]] = {}
 
 
-def register(engine_cls: Type[STTEngine]) -> Type[STTEngine]:
+def register(engine_cls: type[STTEngine]) -> type[STTEngine]:
     _REGISTRY[engine_cls.name] = engine_cls
     return engine_cls
 

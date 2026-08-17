@@ -1,0 +1,62 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="760" height="360" viewBox="0 0 760 360" font-family="Menlo, Consolas, monospace">
+  <defs>
+    <linearGradient id="bg" x1="0" y1="0" x2="0" y2="1">
+      <stop offset="0" stop-color="#1e2430"/>
+      <stop offset="1" stop-color="#171c26"/>
+    </linearGradient>
+  </defs>
+
+  <!-- window -->
+  <rect x="10" y="10" width="740" height="340" rx="12" fill="url(#bg)" stroke="#2d3646"/>
+  <circle cx="34" cy="32" r="6" fill="#ff5f57"/>
+  <circle cx="54" cy="32" r="6" fill="#febc2e"/>
+  <circle cx="74" cy="32" r="6" fill="#28c840"/>
+  <text x="380" y="37" fill="#8b96a8" font-size="13" text-anchor="middle">voxagent — voice mode</text>
+
+  <!-- hotkey hint -->
+  <g>
+    <rect x="290" y="52" width="180" height="24" rx="6" fill="#242c3a" stroke="#3a4558"/>
+    <text x="380" y="68" fill="#9aa7bb" font-size="12" text-anchor="middle">hold ⌃⇧Space to talk</text>
+  </g>
+
+  <!-- line 1: user speech -->
+  <text x="30" y="110" fill="#6ee7a0" font-size="15">
+    🧑 You:
+    <tspan fill="#dce3ee">"Refactor the auth module, then run the tests."</tspan>
+  </text>
+  <rect x="30" y="98" width="0" height="18" fill="#dce3ee">
+    <animate attributeName="width" values="0;0;580" keyTimes="0;0.05;0.28" dur="10s" repeatCount="indefinite" calcMode="discrete"/>
+  </rect>
+
+  <!-- line 2: agent ack -->
+  <text x="30" y="150" fill="#7aa2f7" font-size="15" opacity="0">
+    🤖 Agent: 🔊 "On it — auth first, then the test suite."
+    <animate attributeName="opacity" values="0;0;1;1" keyTimes="0;0.30;0.34;1" dur="10s" repeatCount="indefinite" calcMode="discrete"/>
+  </text>
+
+  <!-- progress dots -->
+  <text x="30" y="185" fill="#5b6778" font-size="13" opacity="0">
+    ⠿ working...
+    <animate attributeName="opacity" values="0;0;1;1;0" keyTimes="0;0.34;0.38;0.62;0.66" dur="10s" repeatCount="indefinite" calcMode="discrete"/>
+  </text>
+
+  <!-- line 3: agent result -->
+  <text x="30" y="220" fill="#7aa2f7" font-size="15" opacity="0">
+    🤖 Agent: 🔊 "Done. 24 tests pass, 1 skipped — needs a DB. Want me to mock it?"
+    <animate attributeName="opacity" values="0;0;1;1" keyTimes="0;0.66;0.70;1" dur="10s" repeatCount="indefinite" calcMode="discrete"/>
+  </text>
+
+  <!-- line 4: user voice reply -->
+  <text x="30" y="260" fill="#6ee7a0" font-size="15" opacity="0">
+    🧑 You: "Yes, mock it."
+    <animate attributeName="opacity" values="0;0;1;1" keyTimes="0;0.78;0.82;1" dur="10s" repeatCount="indefinite" calcMode="discrete"/>
+  </text>
+
+  <!-- status bar -->
+  <rect x="10" y="318" width="740" height="32" rx="0" fill="#141922"/>
+  <text x="30" y="339" fill="#5b6778" font-size="12">STT: whisper-small (offline)</text>
+  <text x="400" y="339" fill="#5b6778" font-size="12">TTS: edge-tts → CosyVoice</text>
+  <circle cx="725" cy="334" r="4" fill="#28c840">
+    <animate attributeName="opacity" values="1;0.2;1" dur="2s" repeatCount="indefinite"/>
+  </circle>
+</svg>

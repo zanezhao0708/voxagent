@@ -6,6 +6,7 @@
 
 Local-first voice I/O for Claude Code, Cursor, OpenClaw and any MCP client.
 
+[![CI](https://github.com/zanezhao0708/voxagent/actions/workflows/ci.yml/badge.svg)](https://github.com/zanezhao0708/voxagent/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](pyproject.toml)
 [![MCP](https://img.shields.io/badge/transport-MCP-black.svg)](https://modelcontextprotocol.io)
@@ -14,13 +15,7 @@ Local-first voice I/O for Claude Code, Cursor, OpenClaw and any MCP client.
 
 </div>
 
-<!-- Replace with a real 30s demo GIF of voice-driven coding -->
-```
-You:  "Voice mode on — refactor the auth module and run the tests."
-Agent: 🔊 "On it. Auth module, then tests. About a minute."
-Agent: 🔊 "Done. 24 tests pass. One skipped — it needs a DB, want me to mock it?"
-You:  "Yes, mock it."          ← spoken, not typed
-```
+![VoxAgent demo](docs/demo.svg)
 
 ## Why
 
@@ -30,6 +25,8 @@ a keyboard. VoxAgent gives your agent **ears and a mouth**:
 - 🎤 **`listen()`** — dictate instructions, code snippets, or code review feedback
 - 🔊 **`speak()`** — spoken progress updates; go get coffee while your agent talks
 - 🗣️ **`ask_user()`** — the agent asks, you answer out loud from across the room
+- 🕹️ **Push-to-talk** — hold a global hotkey anywhere; your words go straight
+  into `claude -p`, and the reply is spoken back
 
 Everything runs **on your machine**. STT is fully offline (faster-whisper);
 TTS starts with a zero-setup voice and upgrades to a local CosyVoice server
@@ -47,9 +44,14 @@ claude mcp add voxagent -- voxagent serve
 
 # Enable the agent skill (when to speak, how to behave)
 mkdir -p ~/.claude/skills && cp -r skills/voice-control ~/.claude/skills/
+
+# Push-to-talk daemon (optional): talk to Claude Code from any app
+pip install 'voxagent[ptt]'
+voxagent ptt --send 'claude -p'
 ```
 
-Then just say: **"voice mode on"**.
+Then just say: **"voice mode on"** — or hold the PTT hotkey (default
+`Ctrl+Shift+Space`) and talk.
 
 Works with any MCP client — Cursor, OpenClaw, Codex and friends all speak MCP.
 
@@ -90,7 +92,7 @@ language mirroring, graceful fallback to text.
 
 ## Roadmap
 
-- [ ] Push-to-talk global hotkey (agent ear always on)
+- [x] Push-to-talk global hotkey (`voxagent ptt`)
 - [ ] Streaming STT (partial transcripts while you speak)
 - [ ] Voice memory — clone your own voice for agent replies
 - [ ] OpenClaw / n8n integration recipes

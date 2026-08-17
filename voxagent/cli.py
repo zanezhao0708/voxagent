@@ -51,6 +51,21 @@ def _cmd_demo(_args) -> int:
             return 0
 
 
+def _cmd_ptt(args) -> int:
+    from .config import VoxConfig, load_dotenv
+    from .ptt import PushToTalkDaemon
+
+    load_dotenv()
+    cfg = VoxConfig.from_env()
+    PushToTalkDaemon(
+        cfg,
+        hotkey=args.hotkey,
+        send_to=args.send,
+        speak_reply=not args.no_speak_reply,
+    ).run()
+    return 0
+
+
 def _cmd_doctor(_args) -> int:
     from importlib.util import find_spec
 
@@ -72,16 +87,29 @@ def _cmd_doctor(_args) -> int:
     return 0 if ok else 1
 
 
-def main() -> None:
+def main(argv: list[str] | None = None) -> None:
     parser = argparse.ArgumentParser(prog="voxagent", description=__doc__)
     sub = parser.add_subparsers(dest="command", required=True)
 
     sub.add_parser("serve", help="run the MCP server (stdio)")
     sub.add_parser("demo", help="local talk-loop demo")
     sub.add_parser("doctor", help="check environment and dependencies")
+    ptt = sub.add_parser("ptt", help="global push-to-talk hotkey daemon")
+    ptt.add_argument("--hotkey", default="ctrl+shift+space", help="e.g. ctrl+shift+space")
+    ptt.add_argument(
+        "--send",
+        default=None,
+        help='pipe transcript to a command, e.g. "claude -p" (default: print only)',
+    )
+    ptt.add_argument("--no-speak-reply", action="store_true")
 
-    args = parser.parse_args()
-    handler = {"serve": _cmd_serve, "demo": _cmd_demo, "doctor": _cmd_doctor}[args.command]
+    args = parser.parse_args(argv)
+    handler = {
+        "serve": _cmd_serve,
+        "demo": _cmd_demo,
+        "doctor": _cmd_doctor,
+        "ptt": _cmd_ptt,
+    }[args.command]
     sys.exit(handler(args))
 
 

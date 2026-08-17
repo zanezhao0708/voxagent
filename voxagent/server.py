@@ -15,7 +15,6 @@ Register with Claude Code:
 from __future__ import annotations
 
 import tempfile
-from typing import Optional
 
 from mcp.server.fastmcp import FastMCP
 
@@ -23,7 +22,7 @@ from .config import VoxConfig, load_dotenv
 
 mcp = FastMCP("voxagent")
 
-_config: Optional[VoxConfig] = None
+_config: VoxConfig | None = None
 _stt = None
 _tts = None
 _recorder = None
@@ -47,7 +46,7 @@ def _services():
 
 
 def _listen_once() -> str:
-    cfg, stt, _tts, recorder = _services()
+    _cfg, stt, _tts, recorder = _services()
     with tempfile.NamedTemporaryFile(suffix=".wav", delete=False) as tmp:
         wav_path = tmp.name
     recorder.record_to_wav(wav_path)
@@ -78,7 +77,7 @@ def speak(text: str) -> str:
     asking a quick question, or reading a summary aloud while the user is
     away from the keyboard.
     """
-    cfg, _stt, tts, _recorder = _services()
+    _cfg, _stt, tts, _recorder = _services()
     with tempfile.NamedTemporaryFile(suffix=".mp3", delete=False) as tmp:
         out_path = tmp.name
     try:

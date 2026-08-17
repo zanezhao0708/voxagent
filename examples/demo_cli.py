@@ -20,7 +20,6 @@ def main() -> None:
     while True:
         try:
             wav_path = "/tmp/vox_in.wav"
-            import tempfile
 
             import sounddevice as sd
             from scipy.io import wavfile

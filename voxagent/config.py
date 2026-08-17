@@ -37,7 +37,7 @@ class VoxConfig:
     max_recording_s: int = 60
 
     @classmethod
-    def from_env(cls) -> "VoxConfig":
+    def from_env(cls) -> VoxConfig:
         return cls(
             stt_engine=_get("VOXAGENT_STT_ENGINE", "whisper").lower(),
             whisper_model=_get("WHISPER_MODEL", "small"),

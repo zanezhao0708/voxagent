@@ -6,6 +6,7 @@
 
 面向 Claude Code、Cursor、OpenClaw 及所有 MCP 客户端的本地优先语音交互层。
 
+[![CI](https://github.com/zanezhao0708/voxagent/actions/workflows/ci.yml/badge.svg)](https://github.com/zanezhao0708/voxagent/actions/workflows/ci.yml)
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](pyproject.toml)
 [![MCP](https://img.shields.io/badge/transport-MCP-black.svg)](https://modelcontextprotocol.io)
@@ -14,12 +15,7 @@
 
 </div>
 
-```
-你：  "打开语音模式——重构 auth 模块，然后跑测试。"
-Agent: 🔊 "收到。先重构 auth，再跑测试，大概一分钟。"
-Agent: 🔊 "完成。24 个测试通过，1 个跳过——需要数据库，要我 mock 吗？"
-你：  "mock 一下。"          ← 说出来就行，不用打字
-```
+![VoxAgent 演示](docs/demo.svg)
 
 ## 为什么做这个
 
@@ -29,6 +25,7 @@ VoxAgent 给你的智能体装上**耳朵和嘴巴**：
 - 🎤 **`listen()`** —— 口述需求、代码片段、评审意见
 - 🔊 **`speak()`** —— 语音汇报进度；你可以去倒杯咖啡，智能体自己说
 - 🗣️ **`ask_user()`** —— 智能体提问，你隔空口头回答
+- 🕹️ **Push-to-talk** —— 全局热键按住说话，话音直通 `claude -p`，回复语音播报
 
 一切都在**你自己的机器上**运行：语音识别完全离线（faster-whisper）；
 语音合成默认零配置，可一键切换到本地 CosyVoice 获得高质量中文音色。
@@ -46,9 +43,13 @@ claude mcp add voxagent -- voxagent serve
 
 # 启用 Agent Skill（教智能体什么时候该说话）
 mkdir -p ~/.claude/skills && cp -r skills/voice-control ~/.claude/skills/
+
+# Push-to-talk 守护进程（可选）：在任何应用里按住热键对 Claude Code 说话
+pip install 'voxagent[ptt]'
+voxagent ptt --send 'claude -p'
 ```
 
-然后直接说：**"打开语音模式"**。
+然后直接说：**"打开语音模式"**——或者按住 PTT 热键（默认 `Ctrl+Shift+Space`）开口即说。
 
 任何 MCP 客户端（Cursor、OpenClaw、Codex 等）都可以接入。
 
@@ -88,7 +89,7 @@ mkdir -p ~/.claude/skills && cp -r skills/voice-control ~/.claude/skills/
 
 ## 路线图
 
-- [ ] 全局快捷键随叫随到（push-to-talk）
+- [x] Push-to-talk 全局热键（`voxagent ptt`）
 - [ ] 流式识别（边说边出字）
 - [ ] 声音记忆——克隆你自己的音色来播报
 - [ ] OpenClaw / n8n 集成示例
