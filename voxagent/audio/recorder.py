@@ -52,7 +52,10 @@ class Recorder:
             nonlocal silent_run, has_speech
             if status:
                 print(f"[recorder] {status}", file=sys.stderr)
-            rms = float(np.sqrt(np.mean(np.square(indata.astype(np.float32)))))
+            # Normalize to [-1, 1] so the silence threshold (default 0.01)
+            # means the same thing regardless of the int16 sample scale.
+            mono = indata.astype(np.float32) / 32768.0
+            rms = float(np.sqrt(np.mean(np.square(mono))))
             chunks.append(indata.copy())
             if rms >= cfg.silence_threshold:
                 has_speech = True
@@ -71,12 +74,21 @@ class Recorder:
             callback=callback,
         ):
             blocks = 0
+            # Give up if nothing above the noise floor after this many blocks,
+            # so a missed threshold never means a full max-duration hang.
+            no_speech_timeout_blocks = 10 * 1000 // 50  # 10s
             try:
                 while blocks < max_blocks:
                     if stop_check is not None:
                         if stop_check():
                             break
                     elif has_speech and silent_run >= silence_blocks:
+                        break
+                    elif not has_speech and blocks >= no_speech_timeout_blocks:
+                        print(
+                            "[recorder] no speech detected, skipping",
+                            file=sys.stderr,
+                        )
                         break
                     time.sleep(0.05)
                     blocks += 1
@@ -87,6 +99,10 @@ class Recorder:
             raise RuntimeError("No audio captured.")
 
         audio = np.concatenate(chunks, axis=0)
+        if not has_speech:
+            # Nothing meaningful was said; return an empty-but-valid file so
+            # callers can surface "[nothing heard]" cleanly.
+            audio = audio[: int(cfg.sample_rate * 0.1)]
         return self._write_wav(out_path, audio, cfg.sample_rate, cfg.channels)
 
     @staticmethod
