@@ -31,6 +31,24 @@ voice — never guess what the user said, always call a tool.
    running, about a minute."
 5. **Errors are spoken too.** If something fails while in voice mode, `speak`
    a one-liner plus the fix you are attempting.
+6. **Degrade gracefully when voice fails.** If `speak` errors or returns `0`,
+   do not retry in a loop — deliver the same message as text and note that
+   audio is unavailable. Voice is an enhancement, never a blocker.
+
+## Push-to-talk context
+
+The user may drive you with the global push-to-talk hotkey instead of typing.
+Transcripts then arrive as plain messages with no "voice mode" preamble. Treat
+a short, imperative spoken-style message (e.g. "run the tests") as a voice
+instruction and reply with a brief `speak` confirmation plus the normal text
+detail.
+
+## When voice fails
+
+- `listen` → "[nothing heard]": retry once, then continue in text.
+- `speak` errors: fall back to text; suggest `voxagent doctor` to the user.
+- Repeated STT/TTS failures: tell the user to run `voxagent doctor` and check
+  mic permission / `pip install 'voxagent[local]'`.
 
 ## Example flow
 

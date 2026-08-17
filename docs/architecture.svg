@@ -1,0 +1,81 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="1000" height="600" viewBox="0 0 1000 600" font-family="'Segoe UI','Helvetica Neue',Arial,sans-serif">
+  <defs>
+    <linearGradient id="grad" x1="0" y1="0" x2="1" y2="1">
+      <stop offset="0" stop-color="#7c3aed"/>
+      <stop offset="1" stop-color="#22d3ee"/>
+    </linearGradient>
+    <linearGradient id="gradSoft" x1="0" y1="0" x2="1" y2="0">
+      <stop offset="0" stop-color="#7c3aed" stop-opacity="0.25"/>
+      <stop offset="1" stop-color="#22d3ee" stop-opacity="0.25"/>
+    </linearGradient>
+    <marker id="arrow" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#22d3ee"/>
+    </marker>
+    <marker id="arrowV" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
+      <path d="M0,0 L10,5 L0,10 z" fill="#7c3aed"/>
+    </marker>
+  </defs>
+
+  <rect width="1000" height="600" fill="#0b1020"/>
+
+  <text x="500" y="46" fill="#ffffff" font-size="26" font-weight="700" text-anchor="middle">VoxAgent Architecture</text>
+  <text x="500" y="72" fill="#8b93a7" font-size="14" text-anchor="middle">Local-first voice I/O over MCP — your words in, your agent's voice out</text>
+
+  <!-- User column -->
+  <rect x="40" y="140" width="200" height="240" rx="18" fill="#111831" stroke="#2a3352"/>
+  <text x="140" y="175" fill="#e5e9f2" font-size="18" font-weight="600" text-anchor="middle">You</text>
+  <circle cx="140" cy="235" r="30" fill="url(#gradSoft)" stroke="url(#grad)" stroke-width="2"/>
+  <text x="140" y="243" fill="#22d3ee" font-size="24" text-anchor="middle">🎤</text>
+  <text x="140" y="290" fill="#8b93a7" font-size="13" text-anchor="middle">speak a command</text>
+  <circle cx="140" cy="330" r="30" fill="url(#gradSoft)" stroke="url(#grad)" stroke-width="2"/>
+  <text x="140" y="338" fill="#22d3ee" font-size="24" text-anchor="middle">🔊</text>
+  <text x="140" y="372" fill="#8b93a7" font-size="13" text-anchor="middle">hear the reply</text>
+
+  <!-- VoxAgent core -->
+  <rect x="330" y="110" width="340" height="300" rx="20" fill="#101731" stroke="url(#grad)" stroke-width="2"/>
+  <text x="500" y="145" fill="#ffffff" font-size="20" font-weight="700" text-anchor="middle">VoxAgent</text>
+  <text x="500" y="167" fill="#8b93a7" font-size="12" text-anchor="middle">MCP server · runs on your machine</text>
+
+  <rect x="360" y="185" width="280" height="52" rx="10" fill="#182042" stroke="#3b4a7a"/>
+  <text x="500" y="208" fill="#22d3ee" font-size="15" font-weight="600" text-anchor="middle">listen()</text>
+  <text x="500" y="226" fill="#8b93a7" font-size="11" text-anchor="middle">mic → transcript (STT)</text>
+
+  <rect x="360" y="247" width="280" height="52" rx="10" fill="#182042" stroke="#3b4a7a"/>
+  <text x="500" y="270" fill="#22d3ee" font-size="15" font-weight="600" text-anchor="middle">speak(text)</text>
+  <text x="500" y="288" fill="#8b93a7" font-size="11" text-anchor="middle">text → speech (TTS)</text>
+
+  <rect x="360" y="309" width="280" height="52" rx="10" fill="#182042" stroke="#3b4a7a"/>
+  <text x="500" y="332" fill="#22d3ee" font-size="15" font-weight="600" text-anchor="middle">ask_user(q)</text>
+  <text x="500" y="350" fill="#8b93a7" font-size="11" text-anchor="middle">speak question → hear answer</text>
+
+  <!-- Engines -->
+  <rect x="360" y="372" width="135" height="26" rx="8" fill="url(#gradSoft)" stroke="#7c3aed"/>
+  <text x="427" y="389" fill="#c4b5fd" font-size="11" text-anchor="middle">faster-whisper · offline</text>
+  <rect x="505" y="372" width="135" height="26" rx="8" fill="url(#gradSoft)" stroke="#22d3ee"/>
+  <text x="572" y="389" fill="#67e8f9" font-size="11" text-anchor="middle">edge-tts / CosyVoice</text>
+
+  <!-- Agent column -->
+  <rect x="760" y="140" width="200" height="240" rx="18" fill="#111831" stroke="#2a3352"/>
+  <text x="860" y="175" fill="#e5e9f2" font-size="18" font-weight="600" text-anchor="middle">Coding Agent</text>
+  <circle cx="860" cy="240" r="34" fill="url(#gradSoft)" stroke="url(#grad)" stroke-width="2"/>
+  <text x="860" y="249" fill="#22d3ee" font-size="26" text-anchor="middle">🤖</text>
+  <text x="860" y="300" fill="#8b93a7" font-size="13" text-anchor="middle">Claude Code · Cursor</text>
+  <text x="860" y="320" fill="#8b93a7" font-size="13" text-anchor="middle">OpenClaw · any MCP client</text>
+
+  <!-- Arrows user <-> core -->
+  <line x1="240" y1="235" x2="352" y2="211" stroke="#22d3ee" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <line x1="352" y1="273" x2="240" y2="330" stroke="#7c3aed" stroke-width="2.5" marker-end="url(#arrowV)"/>
+
+  <!-- Arrows core <-> agent -->
+  <line x1="670" y1="240" x2="752" y2="240" stroke="#22d3ee" stroke-width="2.5" marker-end="url(#arrow)"/>
+  <line x1="752" y1="280" x2="670" y2="280" stroke="#7c3aed" stroke-width="2.5" marker-end="url(#arrowV)"/>
+  <text x="711" y="225" fill="#8b93a7" font-size="12" text-anchor="middle">MCP</text>
+  <text x="711" y="300" fill="#8b93a7" font-size="12" text-anchor="middle">stdio</text>
+
+  <!-- PTT row -->
+  <rect x="330" y="450" width="630" height="100" rx="16" fill="#101731" stroke="#2a3352"/>
+  <text x="360" y="482" fill="#e5e9f2" font-size="15" font-weight="600">Push-to-talk daemon</text>
+  <text x="360" y="506" fill="#8b93a7" font-size="12">hold ⌃⇧Space anywhere → transcribe → pipe to `claude -p` → reply spoken back</text>
+  <text x="360" y="528" fill="#67e8f9" font-size="12">global hotkey · works from any app, hands-free</text>
+  <line x1="500" y1="410" x2="500" y2="446" stroke="#22d3ee" stroke-width="2" stroke-dasharray="4 4" marker-end="url(#arrow)"/>
+</svg>

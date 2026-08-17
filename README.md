@@ -1,6 +1,8 @@
 <div align="center">
 
-# 🎙️ VoxAgent
+<img src="docs/brand/logo.png" width="150" alt="VoxAgent logo" />
+
+# VoxAgent
 
 **Talk to your coding agent. It talks back.**
 
@@ -10,6 +12,7 @@ Local-first voice I/O for Claude Code, Cursor, OpenClaw and any MCP client.
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](pyproject.toml)
 [![MCP](https://img.shields.io/badge/transport-MCP-black.svg)](https://modelcontextprotocol.io)
+[![Stars](https://img.shields.io/github/stars/zanezhao0708/voxagent?style=flat)](https://github.com/zanezhao0708/voxagent/stargazers)
 
 [English](README.md) · [简体中文](README_ZH.md)
 
@@ -31,6 +34,17 @@ a keyboard. VoxAgent gives your agent **ears and a mouth**:
 Everything runs **on your machine**. STT is fully offline (faster-whisper);
 TTS starts with a zero-setup voice and upgrades to a local CosyVoice server
 for production-quality speech. No API keys required.
+
+## Highlights
+
+| | |
+| --- | --- |
+| 🏠 **Local-first** | STT runs 100% offline; no API keys, no cloud dependency |
+| 🪶 **Featherweight core** | Only `mcp` is required; heavy deps live in optional extras and load lazily |
+| 🧠 **Smart model loading** | Local model cache with automatic fallback; CUDA / int8 auto-detection |
+| 🔌 **Pluggable engines** | Swap STT/TTS with one env var; a new adapter is ~40 lines |
+| ⌨️ **Global push-to-talk** | Works from any app, with macOS hotkey suppression built in |
+| 🛡️ **Robust audio** | Silence auto-stop, VAD filtering, multi-backend playback fallback |
 
 ## Quickstart
 
@@ -57,16 +71,7 @@ Works with any MCP client — Cursor, OpenClaw, Codex and friends all speak MCP.
 
 ## Architecture
 
-```
-        ┌─────────────┐     MCP (stdio)      ┌──────────────────┐
- mic ──▶│   listen()  │◀────────────────────▶│  Claude Code /   │
-        │  (STT)      │                      │  Cursor / any    │
- spk ◀──│   speak()   │◀────────────────────▶│  MCP client      │
-        │  (TTS)      │      tools+skill     └──────────────────┘
-        └─────────────┘
-          faster-whisper   edge-tts / CosyVoice (pluggable)
-          ▲ fully offline           ▲ swap via env var
-```
+![VoxAgent architecture](docs/architecture.svg)
 
 **Engines are pluggable** — set one env var to swap either side:
 

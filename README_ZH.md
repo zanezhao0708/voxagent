@@ -1,6 +1,8 @@
 <div align="center">
 
-# 🎙️ VoxAgent
+<img src="docs/brand/logo.png" width="150" alt="VoxAgent logo" />
+
+# VoxAgent
 
 **和你的编程智能体对话，它会开口回答。**
 
@@ -10,6 +12,7 @@
 [![License: MIT](https://img.shields.io/badge/License-MIT-blue.svg)](LICENSE)
 [![Python 3.10+](https://img.shields.io/badge/python-3.10+-blue.svg)](pyproject.toml)
 [![MCP](https://img.shields.io/badge/transport-MCP-black.svg)](https://modelcontextprotocol.io)
+[![Stars](https://img.shields.io/github/stars/zanezhao0708/voxagent?style=flat)](https://github.com/zanezhao0708/voxagent/stargazers)
 
 [English](README.md) · [简体中文](README_ZH.md)
 
@@ -30,6 +33,17 @@ VoxAgent 给你的智能体装上**耳朵和嘴巴**：
 一切都在**你自己的机器上**运行：语音识别完全离线（faster-whisper）；
 语音合成默认零配置，可一键切换到本地 CosyVoice 获得高质量中文音色。
 无需任何 API Key。
+
+## 亮点
+
+| | |
+| --- | --- |
+| 🏠 **本地优先** | 识别 100% 离线；无 API Key、无云端依赖 |
+| 🪶 **极轻核心** | 仅依赖 `mcp`；重依赖放在可选 extras，惰性加载 |
+| 🧠 **智能模型加载** | 本地模型缓存自动回退；CUDA / int8 自动探测 |
+| 🔌 **引擎可插拔** | 改一个环境变量换引擎；新适配器约 40 行 |
+| ⌨️ **全局按键说话** | 任何应用里可用，内置 macOS 热键抑制 |
+| 🛡️ **健壮音频** | 静音自动停止、VAD 过滤、多后端播放回退 |
 
 ## 快速开始
 
@@ -55,16 +69,7 @@ voxagent ptt --send 'claude -p'
 
 ## 架构
 
-```
-        ┌─────────────┐     MCP (stdio)      ┌──────────────────┐
- 麦克风─▶│   listen()  │◀────────────────────▶│  Claude Code /   │
-        │  (语音识别)  │                      │  Cursor / 任意   │
- 扬声器◀─│   speak()   │◀────────────────────▶│  MCP 客户端      │
-        │  (语音合成)  │     工具 + 技能       └──────────────────┘
-        └─────────────┘
-         faster-whisper    edge-tts / CosyVoice（可插拔）
-         ▲ 完全离线                ▲ 环境变量一键切换
-```
+![VoxAgent 架构](docs/architecture.svg)
 
 **引擎可插拔**，改一个环境变量即可换引擎：
 

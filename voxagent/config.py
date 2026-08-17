@@ -50,7 +50,7 @@ class VoxConfig:
             language=_get("VOXAGENT_LANGUAGE", "auto"),
             sample_rate=int(_get("VOXAGENT_SAMPLE_RATE", "16000")),
             channels=int(_get("VOXAGENT_CHANNELS", "1")),
-            silence_ms=int(_get("VOXAGENT_SILENCE_MS", "1200")),
+            silence_ms=int(_get("VOXAGENT_SILENCE_MS", "800")),
             silence_threshold=float(_get("VOXAGENT_SILENCE_THRESHOLD", "0.01")),
             max_recording_s=int(_get("VOXAGENT_MAX_RECORDING_S", "60")),
         )
@@ -69,4 +69,7 @@ def load_dotenv(path: str = ".env") -> None:
             key, value = key.strip(), value.strip()
             if value and value[0] == value[-1] and value[0] in "'\"":
                 value = value[1:-1]
+            else:
+                # strip inline comments: KEY=value   # note
+                value = value.split("#", 1)[0].strip()
             os.environ.setdefault(key, value)

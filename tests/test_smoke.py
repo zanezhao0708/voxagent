@@ -110,3 +110,64 @@ def test_cli_doctor_runs():
         main(["doctor"])
     except SystemExit as e:
         assert e.code in (0, 1)
+
+
+# ------------------------------------------------------------------ config
+
+
+def test_load_dotenv_strips_inline_comments(tmp_path, monkeypatch):
+    import os
+
+    from voxagent.config import load_dotenv
+
+    env = tmp_path / ".env"
+    env.write_text(
+        "VOX_TEST_ENGINE=edge          # inline note\n"
+        "VOX_TEST_QUOTED='a # b'\n"
+        "# full-line comment\n"
+    )
+    monkeypatch.delenv("VOX_TEST_ENGINE", raising=False)
+    monkeypatch.delenv("VOX_TEST_QUOTED", raising=False)
+    load_dotenv(str(env))
+    assert os.environ["VOX_TEST_ENGINE"] == "edge"
+    assert os.environ["VOX_TEST_QUOTED"] == "a # b"
+
+
+def test_from_env_silence_default_matches_dataclass(monkeypatch):
+    monkeypatch.delenv("VOXAGENT_SILENCE_MS", raising=False)
+    assert VoxConfig.from_env().silence_ms == VoxConfig().silence_ms == 800
+
+
+# ----------------------------------------------------------------- engines
+
+
+def test_create_stt_none_and_unknown():
+    from voxagent.stt import create_stt
+
+    assert create_stt(VoxConfig(stt_engine="none")).transcribe("x") == "[STT disabled]"
+    with pytest.raises(ValueError):
+        create_stt(VoxConfig(stt_engine="nope"))
+
+
+def test_create_tts_none_and_unknown():
+    from voxagent.tts import create_tts
+
+    assert create_tts(VoxConfig(tts_engine="none")).synthesize("hi", "/tmp/x") == ""
+    with pytest.raises(ValueError):
+        create_tts(VoxConfig(tts_engine="nope"))
+
+
+def test_resolve_model_ref_local_cache(tmp_path, monkeypatch):
+    import voxagent.stt.whisper_engine as we
+
+    cache = tmp_path / ".voxagent" / "models"
+    (cache / "small").mkdir(parents=True)
+    (cache / "small" / "model.bin").write_bytes(b"x")
+    monkeypatch.setattr(we.Path, "home", lambda: tmp_path)
+
+    # exact cached size wins
+    assert we.WhisperEngine._resolve_model_ref("small") == str(cache / "small")
+    # missing size falls back to the largest cached one
+    assert we.WhisperEngine._resolve_model_ref("base") == str(cache / "small")
+    # non-alias paths pass through untouched
+    assert we.WhisperEngine._resolve_model_ref("/custom/path") == "/custom/path"

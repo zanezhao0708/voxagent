@@ -31,7 +31,7 @@ fall back to text gracefully.
 Would love feedback on the push-to-talk UX — especially from Wayland users,
 global hotkeys there are still the wild west.
 
-Demo GIF: [GIF]
+Demo GIF: https://github.com/zanezhao0708/voxagent/raw/main/docs/demo.gif
 
 ---
 
@@ -81,6 +81,6 @@ STT and voice cloning next, but I'd rather build what people ask for.
 CosyVoice 服务用高质量中文音色。无 API Key、无云端依赖。
 
 仓库：https://github.com/zanezhao0708/voxagent
-演示：[GIF]
+演示：https://github.com/zanezhao0708/voxagent/raw/main/docs/demo.gif
 
 欢迎拍砖，下一步做流式识别还是音色克隆，听你们的。
