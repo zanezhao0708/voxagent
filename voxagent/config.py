@@ -32,7 +32,7 @@ class VoxConfig:
     # Recorder
     sample_rate: int = 16000
     channels: int = 1
-    silence_ms: int = 1200
+    silence_ms: int = 800
     silence_threshold: float = 0.01
     max_recording_s: int = 60
 

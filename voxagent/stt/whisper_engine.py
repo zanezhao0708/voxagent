@@ -31,9 +31,12 @@ class WhisperEngine(STTEngine):
                 device = "cpu"
         else:
             device = config.whisper_device
-        compute = (
-            "default" if config.whisper_compute_type == "auto" else config.whisper_compute_type
-        )
+        if config.whisper_compute_type == "auto":
+            # int8 is ~2x faster than float32 on CPU with negligible accuracy
+            # loss for short voice commands; float16 is native on GPUs.
+            compute = "float16" if device == "cuda" else "int8"
+        else:
+            compute = config.whisper_compute_type
         self._model = WhisperModel(config.whisper_model, device=device, compute_type=compute)
         self._default_language = None if config.language == "auto" else config.language
 
@@ -42,5 +45,9 @@ class WhisperEngine(STTEngine):
             str(Path(wav_path)),
             language=language or self._default_language,
             vad_filter=True,
+            # beam_size=1: greedy decoding is several times faster than the
+            # default beam search and plenty accurate for spoken commands.
+            beam_size=1,
+            condition_on_previous_text=False,
         )
         return " ".join(seg.text.strip() for seg in segments).strip()
