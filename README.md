@@ -90,6 +90,24 @@ The bundled **Agent Skill** (`skills/voice-control`) teaches the agent *when*
 to use them: short spoken replies, voice announcements before long tasks,
 language mirroring, graceful fallback to text.
 
+## Troubleshooting
+
+**Model download fails** (network errors from huggingface.co): download the
+model manually from a mirror, then point `WHISPER_MODEL` at the folder:
+
+```bash
+bash scripts/download_model.sh tiny            # or base / small
+export WHISPER_MODEL="$HOME/.voxagent/models/tiny"
+```
+
+The script pulls from hf-mirror.com with plain `curl`, bypassing the
+huggingface_hub SDK entirely. Alternatively, set `HF_ENDPOINT=https://hf-mirror.com`
+and `HF_HUB_DISABLE_XET=1` before running if the SDK works for you.
+
+**macOS hotkeys don't respond**: grant your terminal *Accessibility / Input
+Monitoring* permission in System Settings → Privacy & Security, then restart
+the daemon.
+
 ## Roadmap
 
 - [x] Push-to-talk global hotkey (`voxagent ptt`)

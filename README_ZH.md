@@ -87,6 +87,23 @@ voxagent ptt --send 'claude -p'
 内置 **Agent Skill**（`skills/voice-control`）教会智能体*何时*使用这些工具：
 语音回复要短、长任务前先语音预告、跟随用户语言、异常时优雅降级为文字。
 
+## 常见问题
+
+**模型下载失败**（huggingface.co 网络错误）：国内网络建议直接从镜像手动下载，
+再把 `WHISPER_MODEL` 指向本地目录：
+
+```bash
+bash scripts/download_model.sh tiny            # 或 base / small
+export WHISPER_MODEL="$HOME/.voxagent/models/tiny"
+```
+
+脚本用 `curl` 从 hf-mirror.com 直连下载，完全绕开 huggingface_hub SDK。
+如果 SDK 在你的网络下可用，也可以设置 `HF_ENDPOINT=https://hf-mirror.com`
+和 `HF_HUB_DISABLE_XET=1` 后再运行。
+
+**macOS 热键无响应**：在 系统设置 → 隐私与安全性 中给终端开启
+"辅助功能 / 输入监控" 权限，然后重启守护进程。
+
 ## 路线图
 
 - [x] Push-to-talk 全局热键（`voxagent ptt`）
