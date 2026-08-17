@@ -15,7 +15,7 @@ Local-first voice I/O for Claude Code, Cursor, OpenClaw and any MCP client.
 
 </div>
 
-![VoxAgent demo](docs/demo.svg)
+![VoxAgent demo](docs/demo.gif)
 
 ## Why
 

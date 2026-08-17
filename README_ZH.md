@@ -15,7 +15,7 @@
 
 </div>
 
-![VoxAgent 演示](docs/demo.svg)
+![VoxAgent 演示](docs/demo.gif)
 
 ## 为什么做这个
 

@@ -1,7 +1,7 @@
 # Launch Copy Pack (发布文案包)
 
-Copy-paste ready posts for the v0.1.0 launch. Fill in `[GIF]` links after
-recording a real demo on your machine.
+Copy-paste ready posts for the v0.1.0 launch. Demo GIF lives at
+`docs/demo.gif` in the repo — link the raw GitHub URL below.
 
 ---
 
