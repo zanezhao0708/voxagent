@@ -15,12 +15,29 @@ from __future__ import annotations
 import os
 import shutil
 import subprocess
+import sys
 import tempfile
 import threading
 from collections.abc import Callable
 from dataclasses import dataclass, field
 
 from .config import VoxConfig, load_dotenv
+
+
+def _macos_input_trusted() -> bool:
+    """Whether macOS permits this app to monitor global input events.
+
+    Always True off macOS; if the probe itself fails, assume True rather
+    than blocking users spuriously (pynput will warn on its own).
+    """
+    if sys.platform != "darwin":
+        return True
+    try:
+        from ApplicationServices import AXIsProcessTrusted  # type: ignore
+
+        return bool(AXIsProcessTrusted())
+    except Exception:
+        return True
 
 # --------------------------------------------------------------- hotkey utils
 
@@ -143,6 +160,19 @@ class PushToTalkDaemon:
 
     def run(self) -> None:  # pragma: no cover — needs a real desktop session
         from pynput import keyboard
+
+        if not _macos_input_trusted():
+            self._print(
+                "❌ macOS is blocking global hotkeys for this terminal app.\n"
+                "   Fix:\n"
+                "     1. System Settings → Privacy & Security → Accessibility\n"
+                "     2. Enable the app you launch voxagent from (Terminal / iTerm2 ...)\n"
+                "     3. Fully quit that app (Cmd+Q) and reopen it\n"
+                "     4. Run `voxagent ptt` again\n"
+                "   Without this, the hotkey will never fire — exactly the\n"
+                "   'This process is not trusted!' warning you may have seen."
+            )
+            raise SystemExit(1)
 
         tracker = _ComboTracker(parse_hotkey(self._hotkey_spec))
 
